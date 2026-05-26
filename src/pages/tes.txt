@@ -1,0 +1,231 @@
+import { useEffect, useState } from "react"
+
+import AdminLayout from "../layouts/AdminLayout"
+import ProductModal from "../components/ProductModal"
+
+export default function Produtos() {
+
+  const [openModal, setOpenModal] = useState(false)
+
+  const [editingProduct, setEditingProduct] = useState(null)
+
+  const [produtos, setProdutos] = useState(() => {
+
+    const produtosSalvos =
+      localStorage.getItem("produtos")
+
+    return produtosSalvos
+      ? JSON.parse(produtosSalvos)
+      : []
+  })
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      "produtos",
+      JSON.stringify(produtos)
+    )
+
+  }, [produtos])
+
+  function saveProduct(produto) {
+
+    if (editingProduct) {
+
+      const novosProdutos = produtos.map((p) =>
+        p.id === produto.id
+          ? produto
+          : p
+      )
+
+      setProdutos(novosProdutos)
+
+    } else {
+
+      setProdutos((prev) => [
+        ...prev,
+        produto,
+      ])
+    }
+
+    setEditingProduct(null)
+  }
+
+  function deleteProduct(id) {
+
+    const novosProdutos =
+      produtos.filter(
+        (produto) => produto.id !== id
+      )
+
+    setProdutos(novosProdutos)
+  }
+
+  function editProduct(produto) {
+    setEditingProduct(produto)
+    setOpenModal(true)
+  }
+
+  function toggleStatus(id) {
+
+    const novosProdutos = produtos.map((produto) => {
+
+      if (produto.id === id) {
+        return {
+          ...produto,
+          ativo: !produto.ativo,
+        }
+      }
+
+      return produto
+    })
+
+    setProdutos(novosProdutos)
+  }
+
+  return (
+    <AdminLayout>
+
+      <div className="flex items-center justify-between mb-8">
+
+        <div>
+          <h1 className="text-4xl font-bold text-zinc-800">
+            Produtos
+          </h1>
+
+          <p className="text-zinc-500 mt-2">
+            Gerencie os produtos
+          </p>
+        </div>
+
+        <button
+          onClick={() => {
+            setEditingProduct(null)
+            setOpenModal(true)
+          }}
+          className="bg-orange-500 hover:bg-orange-600 transition text-white px-5 py-3 rounded-xl"
+        >
+          Novo Produto
+        </button>
+
+      </div>
+
+      <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+
+        <table className="w-full">
+
+          <thead className="bg-zinc-50 border-b border-zinc-200">
+
+            <tr>
+
+              <th className="text-left px-6 py-4">
+                Produto
+              </th>
+
+              <th className="text-left px-6 py-4">
+                Categoria
+              </th>
+
+              <th className="text-left px-6 py-4">
+                Preço
+              </th>
+
+              <th className="text-left px-6 py-4">
+                Status
+              </th>
+
+              <th className="text-left px-6 py-4">
+                Ações
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            {produtos.map((produto) => (
+
+              <tr
+                key={produto.id}
+                className="border-b border-zinc-100"
+              >
+
+                <td className="px-6 py-5 font-medium text-zinc-800">
+                  {produto.nome}
+                </td>
+
+                <td className="px-6 py-5 text-zinc-600">
+                  {produto.categoria}
+                </td>
+
+                <td className="px-6 py-5 font-semibold text-zinc-800">
+                  {produto.preco}
+                </td>
+
+                <td className="px-6 py-5">
+
+                  <button
+                    onClick={() =>
+                      toggleStatus(produto.id)
+                    }
+                    className={`px-3 py-1 rounded-lg text-sm font-medium ${
+                      produto.ativo
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+
+                    {produto.ativo
+                      ? "Ativo"
+                      : "Inativo"}
+
+                  </button>
+
+                </td>
+
+                <td className="px-6 py-5 flex gap-3">
+
+                  <button
+                    onClick={() =>
+                      editProduct(produto)
+                    }
+                    className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      deleteProduct(produto.id)
+                    }
+                    className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg"
+                  >
+                    Excluir
+                  </button>
+
+                </td>
+
+              </tr>
+
+            ))}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <ProductModal
+        open={openModal}
+        onClose={() => {
+          setOpenModal(false)
+          setEditingProduct(null)
+        }}
+        onSave={saveProduct}
+        editingProduct={editingProduct}
+      />
+
+    </AdminLayout>
+  )
+}
