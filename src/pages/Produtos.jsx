@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../services/supabase"
-
+import AdminLayout from "../layouts/AdminLayout"
 export default function Produtos() {
 
   const [produtos, setProdutos] =
@@ -85,6 +85,12 @@ export default function Produtos() {
   }
 
   return (
+
+     <AdminLayout>
+
+      
+
+    
     <div className="p-8 bg-zinc-100 min-h-screen">
 
       {/* HEADER */}
@@ -252,5 +258,6 @@ export default function Produtos() {
       </div>
 
     </div>
+    </AdminLayout>
   )
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../services/supabase"
+import AdminLayout from "../layouts/AdminLayout"
 
 export default function Adicionais() {
 
@@ -73,7 +74,9 @@ export default function Adicionais() {
   }
 
   return (
-    <div className="p-8 bg-zinc-100 min-h-screen">
+<AdminLayout>
+
+      <div className="p-8 bg-zinc-100 min-h-screen">
 
       {/* HEADER */}
       <div className="mb-8">
@@ -173,5 +176,12 @@ export default function Adicionais() {
       </div>
 
     </div>
+
+    </AdminLayout>
   )
+
+
+
+    
+  
 }
