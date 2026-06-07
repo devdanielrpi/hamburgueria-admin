@@ -228,63 +228,72 @@ export default function Pedidos() {
     }, 0)
   }
 
+function normalizarImpressao(texto) {
+  return String(texto || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ç/g, "c")
+    .replace(/Ç/g, "C")
+}
+
   // =========================
   // IMPRESSÃO
   // =========================
   function imprimir(pedido) {
 
-    const ESC = "\x1B"
-    const GS = "\x1D"
+  const ESC = "\x1B"
+  const GS = "\x1D"
 
-    let txt = ""
+  let txt = ""
 
-    txt += ESC + "@"
-    txt += ESC + "a" + "\x01"
+  txt += ESC + "@"
+  txt += ESC + "a" + "\x01"
 
-    txt += "HAMBURGUERIA\n"
-    txt += "====================\n\n"
+  txt += "HAMBURGUERIA\n"
+  txt += "====================\n\n"
 
-    txt += ESC + "a" + "\x00"
+  txt += ESC + "a" + "\x00"
 
-    txt += `Pedido: ${pedido.id}\n`
-    txt += `Cliente: ${pedido.cliente}\n`
-    txt += `WhatsApp: ${pedido.whatsapp}\n`
-    txt += `Endereço: ${pedido.endereco}\n`
-    txt += `Pagamento: ${pedido.pagamento}\n`
+  txt += `Pedido: ${pedido.id}\n`
+  txt += `Cliente: ${pedido.cliente}\n`
+  txt += `WhatsApp: ${pedido.whatsapp}\n`
+  txt += `Endereco: ${pedido.endereco}\n`
+  txt += `Pagamento: ${pedido.pagamento}\n`
 
-    txt += "--------------------\n"
+  txt += "--------------------\n"
 
-    pedido.itens.forEach(i => {
+  pedido.itens.forEach(i => {
 
-      txt += `${i.quantidade}x ${i.produto.nome}\n`
+    txt += `${i.quantidade}x ${i.produto.nome}\n`
 
-      i.adicionais.forEach(ad => {
-        txt += ` + ${ad.nome}\n`
-      })
-
-      if (i.observacao) {
-        txt += ` Obs: ${i.observacao}\n`
-      }
-
-      txt += "\n"
+    i.adicionais.forEach(ad => {
+      txt += ` + ${ad.nome}\n`
     })
 
-    txt += "--------------------\n"
+    if (i.observacao) {
+      txt += ` Obs: ${i.observacao}\n`
+    }
 
-    txt += ESC + "E" + "\x01"
-    txt += `TOTAL: R$ ${Number(pedido.total).toFixed(2)}\n`
-    txt += ESC + "E" + "\x00"
+    txt += "\n"
+  })
 
-    txt += "\n\n"
-    txt += GS + "V" + "\x00"
+  txt += "--------------------\n"
 
-    const encoded =
-      btoa(unescape(encodeURIComponent(txt)))
+  txt += ESC + "E" + "\x01"
+  txt += `TOTAL: R$ ${Number(pedido.total).toFixed(2)}\n`
+  txt += ESC + "E" + "\x00"
 
-    window.open(`rawbt:base64,${encoded}`, "_self")
-  }
+  txt += "\n\n"
+  txt += GS + "V" + "\x00"
 
-  // =========================
+  // REMOVE ACENTOS E CEDILHAS
+  txt = normalizarImpressao(txt)
+
+  const encoded =
+    btoa(unescape(encodeURIComponent(txt)))
+
+  window.open(`rawbt:base64,${encoded}`, "_self")
+}  // =========================
   // CRIAR PEDIDO
   // =========================
   async function criarPedido() {
